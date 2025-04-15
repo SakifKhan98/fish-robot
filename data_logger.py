@@ -2,8 +2,16 @@ import serial
 import csv
 from datetime import datetime
 
+# ----------------------------------------------------
+# Change the port to one ypur arduino is conected to. Comment the linux port and uncomment the windows port below.
+# ----------------------------------------------------
+
 # Arduino Port on my Linux Machine
 port = "/dev/ttyACM0"
+
+# Arduino Port Example on a Windows Machine
+# port = "COM3"
+
 baud = 57600
 output_file = "loadcell_readings.csv"
 
