@@ -39,7 +39,8 @@ with open(output_file, "w", newline="") as csvfile:
                 # timestamp = datetime.now().isoformat()
                 timestamp = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
                 writer.writerow([timestamp, val1, val2])
-                print(f"{timestamp}, {val1}, {val2}")
+                # print(f"{timestamp}, {val1}, {val2}")
+                print(timestamp, val1, val2,)
         except Exception as e:
             print("Error:", e)
             continue
