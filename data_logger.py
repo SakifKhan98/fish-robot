@@ -20,7 +20,7 @@ print("Connected to", port)
 
 with open(output_file, "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(["Timestamp", "Load Cell 1", "Load Cell 2"])
+    writer.writerow(["Timestamp", "Load Cell 1 (N)", "Load Cell 2 (N)"])
 
     while True:
         try:
