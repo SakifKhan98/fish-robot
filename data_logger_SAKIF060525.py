@@ -16,14 +16,14 @@ port = "/dev/cu.usbmodem14201"
 # port = "COM3"
 
 baud = 57600
-output_file = "loadcell_readings.csv"
+output_file = "loadcell_readings_SAKIF061625.csv"
 
 ser = serial.Serial(port, baud, timeout=1)
 print("Connected to", port)
 
 with open(output_file, "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(["Timestamp", "Load Cell 1 (N)", "Load Cell 2 (N)"])
+    writer.writerow(["Timestamp", "Load Cell 1 (mN)", "Load Cell 2 (mN)"])
 
     while True:
         try:
@@ -34,12 +34,15 @@ with open(output_file, "w", newline="") as csvfile:
                     .replace("Load_cell 2 output val:", "")
                     .split()
                 )
+                # print(parts[0], parts[1])
+                # print(type(parts[0]))
                 val1 = float(parts[0])
                 val2 = float(parts[-1])
+                # print(f"{val1:.2f}") 
                 # timestamp = datetime.now().isoformat()
                 timestamp = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
                 writer.writerow([timestamp, val1, val2])
-                print(f"{timestamp}, {val1}, {val2}")
+                print(f"{timestamp}, {val1:.2f} mN, {val2:.2f} mN")
         except Exception as e:
             print("Error:", e)
             continue

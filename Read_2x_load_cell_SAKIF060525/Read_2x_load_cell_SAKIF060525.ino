@@ -15,10 +15,10 @@
 #endif
 
 //pins:
-const int HX711_dout_1 = 6; //mcu > HX711 no 1 dout pin
-const int HX711_sck_1 = 7; //mcu > HX711 no 1 sck pin
-const int HX711_dout_2 = 4; //mcu > HX711 no 2 dout pin
-const int HX711_sck_2 = 5; //mcu > HX711 no 2 sck pin
+const int HX711_dout_1 = 4; //mcu > HX711 no 1 dout pin
+const int HX711_sck_1 = 5; //mcu > HX711 no 1 sck pin
+const int HX711_dout_2 = 6; //mcu > HX711 no 2 dout pin
+const int HX711_sck_2 = 7; //mcu > HX711 no 2 sck pin
 
 //HX711 constructor (dout pin, sck pin)
 HX711_ADC LoadCell_1(HX711_dout_1, HX711_sck_1); //HX711 1
@@ -36,13 +36,11 @@ void setup() {
   float calibrationValue_1; // calibration value load cell 1
   float calibrationValue_2; // calibration value load cell 2
 
-  calibrationValue_1 = 696.0; // uncomment this if you want to set this value in the sketch
-  calibrationValue_2 = 733.0; // uncomment this if you want to set this value in the sketch
 #if defined(ESP8266) || defined(ESP32)
   //EEPROM.begin(512); // uncomment this if you use ESP8266 and want to fetch the value from eeprom
 #endif
-  //EEPROM.get(calVal_eepromAdress_1, calibrationValue_1); // uncomment this if you want to fetch the value from eeprom
-  //EEPROM.get(calVal_eepromAdress_2, calibrationValue_2); // uncomment this if you want to fetch the value from eeprom
+  EEPROM.get(calVal_eepromAdress_1, calibrationValue_1); // uncomment this if you want to fetch the value from eeprom
+  EEPROM.get(calVal_eepromAdress_2, calibrationValue_2); // uncomment this if you want to fetch the value from eeprom
 
   LoadCell_1.begin();
   LoadCell_2.begin();
@@ -62,8 +60,8 @@ void setup() {
   if (LoadCell_2.getTareTimeoutFlag()) {
     Serial.println("Timeout, check MCU>HX711 no.2 wiring and pin designations");
   }
-  LoadCell_1.setCalFactor(calibrationValue_1); // user set calibration value (float)
-  LoadCell_2.setCalFactor(calibrationValue_2); // user set calibration value (float)
+  LoadCell_1.setCalFactor(calibrationValue_1/1000); // user set calibration value (float)
+  LoadCell_2.setCalFactor(calibrationValue_2/1000); // user set calibration value (float)
   Serial.println("Startup is complete");
 }
 
@@ -78,12 +76,15 @@ void loop() {
   //get smoothed value from data set
   if ((newDataReady)) {
     if (millis() > t + serialPrintInterval) {
-      float a = -LoadCell_1.getData();
-      float b = -LoadCell_2.getData();
+      float a = LoadCell_1.getData();
+      float b = LoadCell_2.getData();
       Serial.print("Load_cell 1 output val: ");
       Serial.print(a);
       Serial.print("    Load_cell 2 output val: ");
       Serial.println(b);
+
+//      Serial.println(calibrationValue_1);
+      
       newDataReady = 0;
       t = millis();
     }
