@@ -16,7 +16,7 @@ port = "/dev/cu.usbmodem14201"
 # port = "COM3"
 
 baud = 57600
-output_file = "loadcell_readings_SAKIF061625.csv"
+output_file = "loadcell_readings_SAKIF062525.csv"
 
 ser = serial.Serial(port, baud, timeout=1)
 print("Connected to", port)

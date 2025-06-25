@@ -64,7 +64,7 @@ with open(output_file, "w", newline="") as csvfile:
                     .replace("m_v", "")
                     .split()
                 )
-                print(parts)
+                # print(parts)
 
                 # Extract values and handle 'nan' (Not a Number) values
                 try:
@@ -106,9 +106,9 @@ with open(output_file, "w", newline="") as csvfile:
                 # Received line: Load_cell 1 output val: nan Load_cell 2 output val: nanBus Voltage: 7.37 V Shunt Voltage: 0.00 m_v Current: 0.005 m_a  Power: 0.05 m_w Manual Power: 0.04 m_w
 
                 # Print the data to the console for debugging
-                print(
-                    f"{timestamp}, {val1:.2f} mN, {val2:.2f} mN, {current:.3f} A, {bus_voltage:.2f} V, {shunt_voltage:.3f} V, {power:.3f} W, {manual_power:.3f} W"
-                )
+                # print(
+                #     f"{timestamp}, {val1:.2f} mN, {val2:.2f} mN, {current:.3f} A, {bus_voltage:.2f} V, {shunt_voltage:.3f} V, {power:.3f} W, {manual_power:.3f} W"
+                # )
 
         except Exception as e:
             print("Error:", e)
