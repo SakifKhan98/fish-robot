@@ -38,7 +38,7 @@ with open(output_file, "w", newline="") as csvfile:
                 # print(type(parts[0]))
                 val1 = float(parts[0])
                 val2 = float(parts[-1])
-                # print(f"{val1:.2f}") 
+                # print(f"{val1:.2f}")
                 # timestamp = datetime.now().isoformat()
                 timestamp = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
                 writer.writerow([timestamp, val1, val2])

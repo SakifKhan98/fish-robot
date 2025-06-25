@@ -10,6 +10,18 @@
 // UNIT IS CALCULATED IN N
 
 #include <HX711_ADC.h>
+#include <Wire.h>
+#include <INA226.h>
+#include <Servo.h>
+
+// Initialize the INA226 sensor
+INA226 ina(0x40);  // Default I2C address 0x40
+
+// Servo setup
+int pos = 0;
+Servo myservo;  // Create Servo object to control the servo
+
+
 #if defined(ESP8266)|| defined(ESP32) || defined(AVR)
 #include <EEPROM.h>
 #endif
@@ -29,16 +41,33 @@ const int calVal_eepromAdress_2 = 4; // eeprom adress for calibration value load
 unsigned long t = 0;
 
 void setup() {
-  Serial.begin(57600); delay(10);
+  // Serial.begin(57600);
+  Serial.begin(9600);
+  Wire.begin();
+  delay(10);
   Serial.println();
   Serial.println("Starting...");
+
+  // Connect to INA226 at default I2C address (0x40)
+  if (ina.begin()) {
+    Serial.println("INA226 connected successfully.");
+  } else {
+    Serial.println("Failed to connect to INA226.");
+    while (1); // halt if INA226 fails to initialize
+  }
+
+  // Set calibration (shunt resistor = 0.1 ohm, max current = 3.2 A)
+  ina.setMaxCurrentShunt(20.0, 0.002);   // Set max current for shunt resistor
+
+  // Initialize Servo on pin 9
+  myservo.attach(9);
 
   float calibrationValue_1; // calibration value load cell 1
   float calibrationValue_2; // calibration value load cell 2
 
-#if defined(ESP8266) || defined(ESP32)
-  //EEPROM.begin(512); // uncomment this if you use ESP8266 and want to fetch the value from eeprom
-#endif
+  #if defined(ESP8266) || defined(ESP32)
+    //EEPROM.begin(512); // uncomment this if you use ESP8266 and want to fetch the value from eeprom
+  #endif
   EEPROM.get(calVal_eepromAdress_1, calibrationValue_1); // uncomment this if you want to fetch the value from eeprom
   EEPROM.get(calVal_eepromAdress_2, calibrationValue_2); // uncomment this if you want to fetch the value from eeprom
 
@@ -69,6 +98,8 @@ void loop() {
   static boolean newDataReady = 0;
   const int serialPrintInterval = 0; //increase value to slow down serial print activity
 
+  
+
   // check for new data/start next conversion:
   if (LoadCell_1.update()) newDataReady = true;
   LoadCell_2.update();
@@ -78,12 +109,90 @@ void loop() {
     if (millis() > t + serialPrintInterval) {
       float a = LoadCell_1.getData();
       float b = LoadCell_2.getData();
+      // Serial.print("Load_cell 1 output val: ");
+      // Serial.print(a);
+      // Serial.print("    Load_cell 2 output val: ");
+      // Serial.println(b);
+
+
+    for (pos = 0; pos <= 180; pos += 1) {  // Sweep from 0 to 180 degrees
+      myservo.write(pos);   // Move servo to current position
+      // Serial.print(pos);
+
+        // Print readings to Serial Monitor
+      float busVoltage = ina.getBusVoltage();       // in volts
+      float shuntVoltage = ina.getShuntVoltage();   // in millivolts
+      float current = ina.getCurrent() ;   // in amps (convert mA to A)
+      float power = ina.getPower();                 // in milliwatts
+      float manualpower = busVoltage * current;
+
       Serial.print("Load_cell 1 output val: ");
       Serial.print(a);
-      Serial.print("    Load_cell 2 output val: ");
-      Serial.println(b);
+      Serial.print(" Load_cell 2 output val: ");
+      Serial.print(b);
 
-//      Serial.println(calibrationValue_1);
+      Serial.print("Bus Voltage: ");
+      Serial.print(busVoltage);
+      Serial.print(" V ");
+
+      Serial.print("Shunt Voltage: ");
+      Serial.print(shuntVoltage);
+      Serial.print(" m_v ");
+
+      Serial.print("Current: ");
+      Serial.print(current, 3);  // Display in amps
+      Serial.print(" m_a  ");
+
+      Serial.print("Power: ");
+      Serial.print(power);
+      Serial.print(" m_w ");
+
+      Serial.print("Manual Power: ");
+      Serial.print(manualpower);
+      Serial.println(" m_w ");
+
+      delay(150);             // Delay to give servo time to move
+  }
+
+  // Sweep back (180 to 0 degrees)
+  for (pos = 180; pos >= 0; pos -= 1) {  // Sweep from 180 to 0 degrees
+    myservo.write(pos);   // Move servo to current position
+    // Serial.print(pos);
+
+    // Print readings to Serial Monitor
+    float busVoltage = ina.getBusVoltage();       // in volts
+    float shuntVoltage = ina.getShuntVoltage();   // in millivolts
+    float current = ina.getCurrent() ;   // in amps (convert mA to A)
+    float power = ina.getPower();                 // in milliwatts
+    float manualpower = busVoltage * current;
+
+    Serial.print("Load_cell 1 output val: ");
+    Serial.print(a);
+    Serial.print(" Load_cell 2 output val: ");
+    Serial.print(b);
+
+    Serial.print("Bus Voltage: ");
+    Serial.print(busVoltage);
+    Serial.print(" V ");
+
+    Serial.print("Shunt Voltage: ");
+    Serial.print(shuntVoltage);
+    Serial.print(" m_v ");
+
+    Serial.print("Current: ");
+    Serial.print(current, 3);  // Display in amps
+    Serial.print(" m_a  ");
+
+    Serial.print("Power: ");
+    Serial.print(power);
+    Serial.print(" m_w ");
+
+    Serial.print("Manual Power: ");
+    Serial.print(manualpower);
+    Serial.println(" m_w ");
+
+    delay(150);             // Delay to give servo time to move
+  }
       
       newDataReady = 0;
       t = millis();
@@ -106,5 +215,8 @@ void loop() {
   if (LoadCell_2.getTareStatus() == true) {
     Serial.println("Tare load cell 2 complete");
   }
+
+    // Sweep the servo motor (0 to 180 degrees)
+
 
 }
