@@ -16,7 +16,7 @@ port = "/dev/cu.usbmodem14201"
 # port = "COM3"
 
 baud = 9600  # Match the baud rate in your Arduino code
-output_file = "loadcell_current_power_SAKIF062525.csv"
+output_file = "./current_sensor_reading/loadcell_current_power_SAKIF070225_7_B.csv"
 
 ser = serial.Serial(port, baud, timeout=1)
 print("Connected to", port)
